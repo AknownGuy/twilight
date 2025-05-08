@@ -19,16 +19,26 @@
       --accent: #d18fff;
       --border: #6b4a8b;
       --input-bg: #291d3f;
+      background: linear-gradient(to bottom right, #1c142e, #301234);
     }
 
     body.greenlit {
-        --bg: #0f1f0f;
-        --fg: #e6ffe6;
-        --accent: #33cc33;
-        --border: #267326;
-        --input-bg: #1a331a;
+      --bg: #0f1f0f;
+      --fg: #e6ffe6;
+      --accent: #33cc33;
+      --border: #267326;
+      --input-bg: #1a331a;
+      background: linear-gradient(to bottom right, #0f1f0f, #162f16);
     }
 
+    body.neon {
+      --bg: #111111;
+      --fg: #f8f8f8;
+      --accent: #00ff00;
+      --border: #00cc00;
+      --input-bg: #1a1a1a;
+      background: linear-gradient(to bottom right, #111111, #262626);
+    }
 
     body {
       margin: 0;
@@ -85,7 +95,6 @@
       color: #999;
     }
 
-    /* Settings Gear */
     .settings-icon {
       position: absolute;
       top: 20px;
@@ -95,7 +104,6 @@
       color: var(--accent);
     }
 
-    /* Slide Panel */
     .settings-panel {
       position: fixed;
       top: 0;
@@ -146,7 +154,6 @@
       font-size: 1.2rem;
     }
 
-    /* Iframe Container */
     #webviewContainer {
       width: 80%;
       height: 60%;
@@ -163,7 +170,6 @@
       border: none;
     }
 
-    /* Error Message */
     #errorMessage {
       display: none;
       color: red;
@@ -247,7 +253,6 @@
         iframe.style.display = "block";
         iframe.src = fullURL;
 
-        // Hide error message in case iframe works
         document.getElementById("errorMessage").style.display = "none";
       } else {
         webviewContainer.style.display = "none";
@@ -260,13 +265,9 @@
     }
 
     function handleIframeError() {
-      // Hide iframe
       iframe.style.display = "none";
-      
-      // Show error message
       document.getElementById("errorMessage").style.display = "block";
       
-      // Automatically redirect after 5 seconds
       setTimeout(() => {
         const url = input.value.trim();
         const ip = ipInput.value.trim() || "51.158.55.107";
@@ -275,7 +276,7 @@
         const fullURL = `https://${ip}${path}${encoded}`;
         
         window.location.href = fullURL;
-      }, 5000); // 5 seconds delay before redirect
+      }, 5000);
     }
 
     function saveSettings() {
@@ -302,7 +303,6 @@
         document.body.classList.add(theme);
       }
     }
-
 
     [ipInput, staticInput, newtabSelect, webviewSelect, themeSelect].forEach(el => {
       el.addEventListener("input", () => {
