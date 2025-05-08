@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Neon Redirect with Webview</title>
+  <style>
+    :root {
+      --bg: #0e0b1c;
+      --fg: #ffffff;
+      --accent: #cc66ff;
+      --border: #3a235f;
+      --input-bg: #1a0f2e;
+    }
+
+    body.twilight {
+      --bg: #1c142e;
+      --fg: #f8e3ff;
+      --accent: #d18fff;
+      --border: #6b4a8b;
+      --input-bg: #291d3f;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: var(--bg);
+      color: var(--fg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    h1 {
+      color: var(--accent);
+      text-shadow: 0 0 10px var(--accent);
+      margin-bottom: 2rem;
+    }
+
+    input[type="text"] {
+      width: 300px;
+      padding: 1rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      border: 1px solid var(--accent);
+      background: var(--input-bg);
+      color: var(--fg);
+      outline: none;
+      box-shadow: 0 0 10px var(--accent)44;
+    }
+
+    button {
+      margin-top: 1rem;
+      padding: 0.8rem 2rem;
+      font-size: 1rem;
+      border: none;
+      background: var(--accent);
+      color: var(--fg);
+      border-radius: 10px;
+      cursor: pointer;
+      box-shadow: 0 0 10px var(--accent);
+      transition: background 0.3s;
+    }
+
+    button:hover {
+      background: #a24bd4;
+    }
+
+    footer {
+      position: absolute;
+      bottom: 1rem;
+      font-size: 0.9rem;
+      color: #999;
+    }
+
+    /* Settings Gear */
+    .settings-icon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      cursor: pointer;
+      font-size: 1.5rem;
+      color: var(--accent);
+    }
+
+    /* Slide Panel */
+    .settings-panel {
+      position: fixed;
+      top: 0;
+      right: -320px;
+      width: 300px;
+      height: 100%;
+      background: var(--bg);
+      border-left: 1px solid var(--border);
+      padding: 20px;
+      transition: right 0.3s ease;
+      z-index: 1000;
+      box-shadow: -5px 0 20px #00000066;
+    }
+
+    .settings-panel.open {
+      right: 0;
+    }
+
+    .settings-panel h2 {
+      margin-top: 0;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .settings-panel label {
+      display: block;
+      margin-top: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .settings-panel input,
+    .settings-panel select {
+      width: 100%;
+      padding: 0.5rem;
+      margin-top: 0.3rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--input-bg);
+      color: var(--fg);
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      cursor: pointer;
+      color: var(--accent);
+      font-size: 1.2rem;
+    }
+
+    /* Iframe Container */
+    #webviewContainer {
+      width: 80%;
+      height: 60%;
+      margin-top: 20px;
+      border: 1px solid var(--accent);
+      border-radius: 10px;
+      overflow: hidden;
+      display: none;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>neon redirect</h1>
+  <input type="text" id="searchInput" placeholder="https://example.com">
+  <button onclick="redirectToEncoded()">go</button>
+
+  <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
+
+  <div class="settings-panel" id="settingsPanel">
+    <div class="close-btn" onclick="toggleSettings()">✖</div>
+    <h2>settings</h2>
+    <label for="ip">IP Address:</label>
+    <input type="text" id="ip" />
+
+    <label for="static">Static String:</label>
+    <input type="text" id="static" />
+
+    <label for="newtab">Redirect Mode:</label>
+    <select id="newtab">
+      <option value="true">Open in New Tab</option>
+      <option value="false">Open in Same Tab</option>
+    </select>
+
+    <label for="webview">Use Webview:</label>
+    <select id="webview">
+      <option value="false">No</option>
+      <option value="true">Yes</option>
+    </select>
+
+    <label for="theme">Theme:</label>
+    <select id="theme">
+      <option value="neon">Neon Dark</option>
+      <option value="twilight">Twilight Purple</option>
+    </select>
+  </div>
+
+  <div id="webviewContainer">
+    <iframe id="webviewIframe" src=""></iframe>
+  </div>
+
+  <footer>proxy via dynamic ip</footer>
+
+  <script>
+    const input = document.getElementById("searchInput");
+    const ipInput = document.getElementById("ip");
+    const staticInput = document.getElementById("static");
+    const newtabSelect = document.getElementById("newtab");
+    const webviewSelect = document.getElementById("webview");
+    const themeSelect = document.getElementById("theme");
+    const webviewContainer = document.getElementById("webviewContainer");
+    const iframe = document.getElementById("webviewIframe");
+
+    function toggleSettings() {
+      const panel = document.getElementById("settingsPanel");
+      panel.classList.toggle("open");
+    }
+
+    function redirectToEncoded() {
+      const url = input.value.trim();
+      if (!url) return alert("Enter a valid URL");
+
+      const ip = ipInput.value.trim() || "51.158.55.107";
+      const path = staticInput.value.trim() || "/?ko=s&__cpo=";
+      const openNewTab = newtabSelect.value === "true";
+      const useWebview = webviewSelect.value === "true";
+
+      const encoded = btoa(url);
+      const fullURL = `https://${ip}${path}${encoded}`;
+
+      if (useWebview) {
+        webviewContainer.style.display = "block";
+        iframe.src = fullURL;
+        window.scrollTo(0, document.body.scrollHeight);
+      } else {
+        webviewContainer.style.display = "none";
+        if (openNewTab) {
+          window.open(fullURL, "_blank");
+        } else {
+          window.location.href = fullURL;
+        }
+      }
+    }
+
+    function saveSettings() {
+      localStorage.setItem("ip", ipInput.value);
+      localStorage.setItem("static", staticInput.value);
+      localStorage.setItem("newtab", newtabSelect.value);
+      localStorage.setItem("webview", webviewSelect.value);
+      localStorage.setItem("theme", themeSelect.value);
+    }
+
+    function loadSettings() {
+      ipInput.value = localStorage.getItem("ip") || "51.158.55.107";
+      staticInput.value = localStorage.getItem("static") || "/?ko=s&__cpo=";
+      newtabSelect.value = localStorage.getItem("newtab") || "true";
+      webviewSelect.value = localStorage.getItem("webview") || "false";
+      themeSelect.value = localStorage.getItem("theme") || "neon";
+
+      applyTheme(themeSelect.value);
+    }
+
+    function applyTheme(theme) {
+      document.body.className = theme === "twilight" ? "twilight" : "";
+    }
+
+    [ipInput, staticInput, newtabSelect, webviewSelect, themeSelect].forEach(el => {
+      el.addEventListener("input", () => {
+        saveSettings();
+        if (el === themeSelect) applyTheme(el.value);
+      });
+    });
+
+    window.onload = () => {
+      loadSettings();
+      input.focus();
+    };
+  </script>
+
+</body>
+</html>
