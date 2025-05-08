@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Neon Redirect with Webview</title>
+  <title>Twilight Proxy</title>
   <style>
     :root {
       --bg: #0e0b1c;
@@ -173,9 +173,9 @@
 </head>
 <body>
 
-  <h1>neon redirect</h1>
-  <input type="text" id="searchInput" placeholder="https://example.com">
-  <button onclick="redirectToEncoded()">go</button>
+  <h1>~Twilight~</h1>
+  <input type="text" id="searchInput" placeholder="https://google.com">
+  <button onclick="redirectToEncoded()">Browse</button>
 
   <div class="settings-icon" onclick="toggleSettings()">⚙️</div>
 
@@ -237,7 +237,7 @@
       const ip = ipInput.value.trim() || "51.158.55.107";
       const path = staticInput.value.trim() || "/?ko=s&__cpo=";
       const openNewTab = newtabSelect.value === "true";
-      const useWebview = webviewSelect.value === "true";
+      const useWebview = webviewSelect.value === "false";
 
       const encoded = btoa(url);
       const fullURL = `https://${ip}${path}${encoded}`;
