@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Twilight Redirect</title>
+  <title>Neon Redirect with Webview</title>
   <style>
     :root {
       --bg: #0e0b1c;
@@ -20,6 +20,15 @@
       --border: #6b4a8b;
       --input-bg: #291d3f;
     }
+
+    body.greenlit {
+        --bg: #0f1f0f;
+        --fg: #e6ffe6;
+        --accent: #33cc33;
+        --border: #267326;
+        --input-bg: #1a331a;
+    }
+
 
     body {
       margin: 0;
@@ -153,11 +162,18 @@
       height: 100%;
       border: none;
     }
+
+    /* Error Message */
+    #errorMessage {
+      display: none;
+      color: red;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
 
-  <h1>Twilight Proxy</h1>
+  <h1>neon redirect</h1>
   <input type="text" id="searchInput" placeholder="https://example.com">
   <button onclick="redirectToEncoded()">go</button>
 
@@ -186,13 +202,15 @@
 
     <label for="theme">Theme:</label>
     <select id="theme">
-      <option value="neon">Neon</option>
+      <option value="neon">Neon Dark</option>
       <option value="twilight">Twilight Purple</option>
+      <option value="greenlit">Greenlit</option>
     </select>
   </div>
 
   <div id="webviewContainer">
-    <iframe id="webviewIframe" src=""></iframe>
+    <iframe id="webviewIframe" src="" onerror="handleIframeError()"></iframe>
+    <div id="errorMessage">This site cannot be displayed in the iframe. Redirecting...</div>
   </div>
 
   <footer>proxy via dynamic ip</footer>
@@ -226,8 +244,11 @@
 
       if (useWebview) {
         webviewContainer.style.display = "block";
+        iframe.style.display = "block";
         iframe.src = fullURL;
-        window.scrollTo(0, document.body.scrollHeight);
+
+        // Hide error message in case iframe works
+        document.getElementById("errorMessage").style.display = "none";
       } else {
         webviewContainer.style.display = "none";
         if (openNewTab) {
@@ -236,6 +257,25 @@
           window.location.href = fullURL;
         }
       }
+    }
+
+    function handleIframeError() {
+      // Hide iframe
+      iframe.style.display = "none";
+      
+      // Show error message
+      document.getElementById("errorMessage").style.display = "block";
+      
+      // Automatically redirect after 5 seconds
+      setTimeout(() => {
+        const url = input.value.trim();
+        const ip = ipInput.value.trim() || "51.158.55.107";
+        const path = staticInput.value.trim() || "/?ko=s&__cpo=";
+        const encoded = btoa(url);
+        const fullURL = `https://${ip}${path}${encoded}`;
+        
+        window.location.href = fullURL;
+      }, 5000); // 5 seconds delay before redirect
     }
 
     function saveSettings() {
@@ -257,8 +297,12 @@
     }
 
     function applyTheme(theme) {
-      document.body.className = theme === "twilight" ? "twilight" : "";
+     document.body.className = "";
+     if (["twilight", "greenlit"].includes(theme)) {
+        document.body.classList.add(theme);
+      }
     }
+
 
     [ipInput, staticInput, newtabSelect, webviewSelect, themeSelect].forEach(el => {
       el.addEventListener("input", () => {
